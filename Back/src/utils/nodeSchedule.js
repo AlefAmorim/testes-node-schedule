@@ -9,9 +9,7 @@ function lembrar(){
 
 export default class Lembretes{
   async Criar(config, id){
-    const job = nodeschedule.scheduleJob(config, ()=>{
-      console.log("OK")
-    });
+    const job = nodeschedule.scheduleJob("2 * * * * *", lembrar);
     console.log(config);
     console.log(job);
 
@@ -39,5 +37,6 @@ export default class Lembretes{
   }
   async listar() {
     console.log(jobs);
+    return jobs;
   }
 }

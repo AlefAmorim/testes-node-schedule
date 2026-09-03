@@ -37,6 +37,34 @@ app.post('/agendar',async (req, res) => {
   }
 })
 
+app.post('/listar',async (req, res) => {
+  try {
+    const resp = await scheduler.listar(id);
+    console.log(resp);
+    return res.status(200).send({resp});
+  }catch(error){
+    console.error(error);
+    return res.status(500).send({erro:"Erro interno no servidor"});
+  }
+})
+
+app.delete('/remover-agenda/:id',async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if(!id) {
+      return res.status(400).send({erro: "Informe o lembrete a ser removido!"});
+    }
+
+    const resp = await scheduler.remover(id);
+    console.log(resp);
+    return res.status(200).send({mensagem:"Lembrete removido com sucesso!"});
+  }catch(error){
+    console.error(error);
+    return res.status(500).send({erro:"Erro interno no servidor"});
+  }
+})
+
 server.listen(8000, ()=> {
   console.log(`Server listening on http://localhost:8000`);
 })
