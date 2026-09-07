@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+input{
+  /* border: none; */
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* 
+input::after{
+  content:"";
+  width: 100%;
+  height:100%;
+  display: inline-block;
+  position: absolute;
+  background: red;
+  transform: scale(0);
+  transition: transform .3s ease-in ;
+} */

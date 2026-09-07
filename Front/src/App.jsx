@@ -1,110 +1,226 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
-import { DIAS_SEMANA, REPETICOES } from "./assets/json/text.json";
+import { DIAS_SEMANA, CATEGORIAS, RECORRENCIA } from "./assets/json/text.json";
 import Input from "./components/Input";
+import Select from "./components/Select.jsx";
+import Checkbox from "./components/Checkbox.jsx";
+
+import Button from "./components/Button.jsx";
+import {
+  askingPermission,
+  registerServiceWorker,
+  subscribeUserToPush,
+  verificarCompatibilidade,
+} from "./utils/register/register";
+import { show } from "./utils/alert/alert";
+import { MdNotifications, MdNotificationsOff } from "react-icons/md";
+import api from "./service/api.js";
+
+const after =
+  "after:scale-0 after:w-3 after:h-3 after:rounded-xs after:content-[''] after:absolute after:transition-all after:bg-zinc-500";
 
 function App() {
-  const [isHorasMinutos, setIsHorasMinutos] = useState(false);
-
+  const [registration, setRegistration] = useState(null);
+  const [dataAtual, setDataAtual] = useState();
+  const [hasNotify, setHasNotify] = useState(Notification.permission);
   const [datas, setDatas] = useState({
-    diasSemana: [],
-    minutos: "",
-    horas: "",
-    repeticoes:"",
+    titulo: "",
+    horario: "",
+    categoria: "",
+    recorrencia: "",
+    horario_fixo: false,
+    dias: new Set(),
   });
+
+  const notifyHandler = async () => {
+    try {
+      if (Notification.permission === "denied") {
+        show(
+          "Info-toast",
+          "Altere as configurações de notificação do navegador!",
+        );
+        return;
+      }
+      setRegistration(await registerServiceWorker());
+      const compatibilidade = await verificarCompatibilidade();
+      if (compatibilidade.erro) {
+        show("Erro-toast", compatibilidade.message);
+      }
+
+      console.log(Notification.permission);
+      console.log(hasNotify);
+
+      const granted = await askingPermission();
+      const subscription = await subscribeUserToPush(registration);
+      const response = await api.post("/registrar-inscricao", { subscription });
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+      setHasNotify(Notification.permission);
+      show("Error-toast", "Falha ao regstrar o usuário!");
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(datas);
+  };
+
+  const handleCheck = (e) => {
+    const { id, checked } = e.target;
+    const { dias } = datas;
+    console.log(id);
+    checked ? dias.add(id) : dias.delete(id);
+    setDatas({
+      ...datas,
+      dias,
+    });
+    console.log(datas);
+  };
 
   const changeHandler = (e) => {
     const campo = e.target.name;
-    if (campo === "repeticoes") {
-      const novosDados = {...datas};
-      novosDados[campo] = e.target.value;
-      console.log(novosDados)
-      setDatas(novosDados);
-      console.log(datas)
-      setIsHorasMinutos(e.target.value === 3);
-    }
-    // // switch(){}
+    const currentData = { ...datas };
+    currentData[campo] =
+      campo == "horario_fixo" ? e.target.checked : e.target.value;
+
+    setDatas(currentData);
+    console.log(datas);
   };
 
+  useEffect(() => {
+    // Quando o usuário clicar no botão de notificação
+    // Verificar a compatibilidade com a funcionalidade
+    // Caso não tenha, notificá-lo
+    // Caso o contrário, pedir permissão para notificações
+    (async () => {
+      const date = new Date();
+      setDataAtual(date.toISOString());
+      console.log(date.toISOString());
+
+      console.log(Date.now().toLocaleString());
+    })();
+  }, []);
+
   return (
-    <main className="min-h-dvh bg-sky-900  text-mauve-100 flex flex-col  items-center">
-      <h1 className="text-5xl text-center font-semibold items-start justify-self-start p-5">
-        Agendamento
-      </h1>
-      <div className="w-content  bg-zinc-900/40 backdrop-blur-4xl text-gray-100 h-full p-3 rounded-lg">
-        <form action="" className="w-full h-full">
-          <header>
-            <h2 className="text-center font-semibold text-2xl">
-              Faça seu Agendamento
-              <Input />
-            </h2>
-          </header>
-          <section>
-            <h3>Dias da Semana</h3>
-            <div className="grid grid-cols-2">
-              {DIAS_SEMANA.map((dia) => (
-                <div>
-                  <input
-                    id="diasSemana"
-                    name="diasSemana"
-                    type="checkbox"
-                    value={dia.value}
-                    onChange={(e) => changeHandler(e)}
-                  />
-                  <label htmlFor="">{dia.label}</label>
-                </div>
-              ))}
-            </div>
-          </section>
-          <section className="flex gap-3">
-            {/*isHorasMinutos ? (
-              <div className="flex flex-col gap-2">
-                <label htmlFor="">Horário</label>
+    <main className="min-h-dvh bg-zinc-900 p-2  text-zinc-800 grid grid-cols-[40%_60%]  items-center">
+      <section className="bg-zinc-800 text-white rounded-md min-h-full p-2">
+        <header className="p-3 h-1/3 w-2/2 flex justify-evenly items-center">
+          <div>
+            <h1 className="text-2xl font-semibold">Crie os seus lembretes</h1>
+            <p className="balance text-zinc-500">
+              {" "}
+              Selecione o horário e os dias da semana ou data para o lembrete.
+            </p>
+          </div>
+          <button
+            className="bg-yellow-600 p-2 w-15 h-10 flex items-center justify-center  text-center text-white rounded-md cursor-pointer hover:scale-103 transition-all"
+            title={`${hasNotify ? "Desativar" : "Ativar"} notificações`}
+            onClick={notifyHandler}
+          >
+            {hasNotify === "granted" ? (
+              <MdNotifications size={20} />
+            ) : (
+              <MdNotificationsOff size={20} />
+            )}
+          </button>
+        </header>
+        <section className="flex p-5 justify-baseline overflow-y-scroll scroll-smooth">
+          <form
+            onSubmit={(e) => handleSubmit(e)} // Isso faz com que a checbox pare de funcionar
+            className="w-full flex flex-col gap-3 overflow-y-scroll scroll-smooth"
+          >
+            <Input
+              labelText="Título"
+              id="titulo"
+              name="titulo"
+              required={true}
+              placeholder="Titulo para o lembrete"
+              changeHandler={(e) => changeHandler(e)}
+            />
+
+            <div className="flex flex-col gap-2">
+              <Input
+                labelText="Horário"
+                id="horario"
+                name="horario"
+                required={true}
+                placeholder="EX: 09:30"
+                type="time"
+                changeHandler={(e) => changeHandler(e)}
+              />
+              <div className="flex items-center gap-2">
                 <input
-                  type="time"
-                  id="horario"
-                  name="horario"
-                  onClick={(e) => changeHandler(e)}
-                  min="00:00"
-                  max="23:59"
-                  className="p-3 border-1 border-b-mist-400 rounded-xl"
+                  type="checkbox"
+                  className={`flex justify-center items-center w-5 h-5 rounded-md border-2 border-zinc-500 cursor-pointer relative ${after} checked:after:scale-100`}
+                  name="horario_fixo"
+                  id="horario_fixo"
+                  onChange={(e) => changeHandler(e)}
                 />
+                <label htmlFor="horario_fixo">Horário fixo</label>
               </div>
-            ) : */(
-              <div>
-                <div className="flex items-center justify-center gap-2">
-                  <div className="flex flex-col">
-                    <label htmlFor="">A cada </label>
-                    <Input
-                      changeHandler={(e) => changeHandler(e)}
-                      name="valor"
-                      id="valor"
-                      min={1}
-                      max={datas.repeticoes == 1?24:60}
-                      type="number"
-                    />
-                  </div>
-                  <div className="h-full flex flex-col gap-2 items-center">
-                    <label htmlFor="">Intervalo de :</label>
-                    <select
-                      onChange={(e) => changeHandler(e)}
-                      name="repeticoes"
-                      id="repeticoes"
-                      className="p-2 border-gray-200 border-2 rounded-lg  font-semibold cursor-pointer focus:bg-white focus:text-taupe-950"
-                    >
-                      {REPETICOES.map((repeticao) => (
-                        <option value={repeticao.value}>
-                          {repeticao.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+            </div>
+
+            <Select
+              labelText="Categoria"
+              name="categoria"
+              id="categoria"
+              options={CATEGORIAS}
+              required={true}
+              changeHandler={(e) => changeHandler(e)}
+            />
+
+            <Select
+              labelText="Recorrencia"
+              name="recorrencia"
+              id="recorrencia"
+              options={RECORRENCIA}
+              required={true}
+              changeHandler={(e) => changeHandler(e)}
+            />
+
+            {datas.recorrencia == "" ? (
+              <span className="text-center font-semibold text-zinc-400">
+                Selecione acima para ver as opções.
+              </span>
+            ) : datas.recorrencia == 2 ? (
+              <Input
+                id="data"
+                name="data"
+                min={dataAtual}
+                labelText="Data"
+                type="date"
+              />
+            ) : (
+              <div className="flex flex-wrap justify-center gap-2">
+                {DIAS_SEMANA.map((dia, index) => (
+                  <Checkbox
+                    key={index}
+                    id={dia.value}
+                    name="dias"
+                    diasSelecionados={datas}
+                    textlabel={dia.label}
+                    checked={dia.checked}
+                    changeHandler={(e) => handleCheck(e)}
+                  />
+                ))}
               </div>
             )}
-          </section>
-        </form>
-      </div>
+
+            <Button type="submit" textButton="Criar lembrete" />
+          </form>
+        </section>
+      </section>
+      <section className="flex flex-col">
+        <header className="flex justify-center">
+          <h2 className="text-white font-semibold text-2xl">Seus Lmebretes</h2>
+        </header>
+        <section className="text-center">
+          <span className="text-center font-semibold text-zinc-400">
+            Nenhuma agenda!Crie uma no formulário a esquerda.
+          </span>{" "}
+        </section>
+      </section>
     </main>
   );
 }

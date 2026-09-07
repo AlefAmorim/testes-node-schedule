@@ -1,17 +1,25 @@
 {
   "DIAS_SEMANA":[
-    {"label":"Todos os dias","value":"*"},
-    {"label":"Domingo","value":0},
-    {"label":"Segunda-feira","value":1},
-    {"label":"Terça-feira","value":2},
-    {"label":"Quarta-feira","value":3},
-    {"label":"Quinta-feira","value":4},
-    {"label":"Sexta-feira","value":5},
-    {"label":"Sábado","value":6}
+    {"label":"Todos os dias","value":"*", "checked":false},
+    {"label":"Domingo","value":1, "checked":false},
+    {"label":"Segunda-feira","value":2, "checked":false},
+    {"label":"Terça-feira","value":3, "checked":false},
+    {"label":"Quarta-feira","value":4, "checked":false},
+    {"label":"Quinta-feira","value":5, "checked":false},
+    {"label":"Sexta-feira","value":6, "checked":false},
+    {"label":"Sábado","value":7, "checked":false}
   ],
-  "REPETICOES":[
-    {"label":"Hora(s)","value":1},
-    {"label":"Minuto(s)","value":2},
-    {"label":"Hora(s) & Minuto(s)","value":3}
+  "CATEGORIAS":[
+    {"label":"Selecione a categoria","value":""},
+    {"label":"Glicemia","value":"glicemia"},
+    {"label":"Medição","value":"medicao"},
+    {"label":"Consulta","value":"consulta"},
+    {"label":"Alimentação","value":"alimentacao"},
+    {"label":"Hidratação","value":"hidratacao"}
+  ],
+  "RECORRENCIA":[
+    {"label":"Selecione a recorrencia","value":""},
+    {"label":"Dias da semana","value":1},
+    {"label":"Data específica","value":2}
   ]
 }
