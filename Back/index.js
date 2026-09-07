@@ -9,7 +9,7 @@ import dotenvConf from "./src/config/dotenv.js";
 const app = express();
 app.use(
   cors({
-    origin: dotenvConf.VERSION === "PROD"?"https://testes-node-schedule-z3tgwa6ey-alefs-projects-b1963f27.vercel.app":"http://localhost:5173",
+    origin: dotenvConf.VERSION === "PROD"?["https://testes-node-schedule-z3tgwa6ey-alefs-projects-b1963f27.vercel.app","https://testes-node-schedule.vercel.app"]:"http://localhost:5173",
   }),
 );
 app.use(express.json());
