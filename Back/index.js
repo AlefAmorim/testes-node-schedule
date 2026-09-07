@@ -39,7 +39,6 @@ app.post("/agendar", async (req, res) => {
       horario_fixo: false
       titulo: "Mansão Vista Mar2"
     */
-   config = new nodeSchedule.RecurrenceRule();
     const [hora, minuto] = horario.split(":");
     console.log(hora, minuto);
     if (typeof datas == "object") {
