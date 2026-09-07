@@ -44,11 +44,11 @@ app.post("/agendar", async (req, res) => {
       const dias = Array.from(datas).join(",");
       console.log(dias)
       config = horario_fixo
-        ? `0 ${minuto} ${hora} * * ${dias}`
-        : `0 */${minuto} */${hora} * * ${dias}`;
+        ? `0 ${minuto} ${hora-3} * * ${dias}`
+        : `0 */${minuto} */${hora-3} * * ${dias}`;
     } else {
       const [ano, mes, dia] = datas.split("-");
-      config = new Date(ano, mes - 1, dia, hora, minuto);
+      config = new Date(ano, mes - 1, dia, hora-3, minuto);
     }
     console.log(config)
     const resp = await scheduler.Criar(config, id, titulo);
