@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import http from "http";
+import nodeSchedule from 'node-schedule'
 import Lembretes from "./src/utils/nodeSchedule.js";
 import connect from "./src/db/db.js";
 import dotenvConf from "./src/config/dotenv.js";
@@ -38,14 +39,15 @@ app.post("/agendar", async (req, res) => {
       horario_fixo: false
       titulo: "Mansão Vista Mar2"
     */
+   config = new nodeSchedule.RecurrenceRule();
     const [hora, minuto] = horario.split(":");
     console.log(hora, minuto);
     if (typeof datas == "object") {
       const dias = Array.from(datas).join(",");
       console.log(dias)
       config = horario_fixo
-        ? `0 ${minuto} ${hora-3} * * ${dias}`
-        : `0 */${minuto} */${hora-3} * * ${dias}`;
+        ? `0 ${minuto} ${hora} * * ${dias}`
+        : `0 */${minuto} */${hora} * * ${dias}`;
     } else {
       const [ano, mes, dia] = datas.split("-");
       config = new Date(ano, mes - 1, dia, hora-3, minuto);

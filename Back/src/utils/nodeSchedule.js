@@ -26,7 +26,7 @@ async function lembrar(title){
 
 export default class Lembretes{
   async Criar(config, id, title){
-    const job = nodeschedule.scheduleJob(config,() => lembrar(title));
+    const job = nodeschedule.scheduleJob({rule:config, tz:"America/Sao_Paulo"},() => lembrar(title));
     console.log(config);
     console.log(job);
 
