@@ -56,7 +56,7 @@ app.post("/agendar", async (req, res) => {
       const [ano, mes, dia] = datas.split("-");
       config = {
         year: parseInt(ano),
-        month: parseInt(mes)-1,
+        month: parseInt(mes),
         date: parseInt(dia),
         hour: parseInt(hora),
         minute: parseInt(minuto),
@@ -64,7 +64,7 @@ app.post("/agendar", async (req, res) => {
         tz: "America/Sao_Paulo",
       };
     }
-    
+
     const resp = await scheduler.Criar(config, id, titulo);
     id++;
     return res.status(200).send({ mensagem: "Lembrete criado com sucesso!" });
