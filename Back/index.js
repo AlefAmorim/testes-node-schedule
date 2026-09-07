@@ -2,7 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import http from "http";
-import nodeSchedule from 'node-schedule'
+import nodeSchedule from "node-schedule";
 import Lembretes from "./src/utils/nodeSchedule.js";
 import connect from "./src/db/db.js";
 import dotenvConf from "./src/config/dotenv.js";
@@ -10,7 +10,13 @@ import dotenvConf from "./src/config/dotenv.js";
 const app = express();
 app.use(
   cors({
-    origin: dotenvConf.VERSION === "PROD"?["https://testes-node-schedule-z3tgwa6ey-alefs-projects-b1963f27.vercel.app","https://testes-node-schedule.vercel.app"]:"http://localhost:5173",
+    origin:
+      dotenvConf.VERSION === "PROD"
+        ? [
+            "https://testes-node-schedule-z3tgwa6ey-alefs-projects-b1963f27.vercel.app",
+            "https://testes-node-schedule.vercel.app",
+          ]
+        : "http://localhost:5173",
   }),
 );
 app.use(express.json());
@@ -23,7 +29,6 @@ let id = 1;
 app.post("/agendar", async (req, res) => {
   let config;
   try {
-    console.log(req.body);
     const { horario, horario_fixo, datas, titulo, categoria } = req.body;
     //nome, url, config, recorrencia, horario, title, subscription
     if (!datas || !horario) {
@@ -40,18 +45,26 @@ app.post("/agendar", async (req, res) => {
       titulo: "Mansão Vista Mar2"
     */
     const [hora, minuto] = horario.split(":");
-    console.log(hora, minuto);
     if (typeof datas == "object") {
       const dias = Array.from(datas).join(",");
-      console.log(dias)
+
       rule = horario_fixo
         ? `0 ${minuto} ${hora} * * ${dias}`
         : `0 */${minuto} */${hora} * * ${dias}`;
-      config = {rule:rule, tz:"America/Sao_Paulo"};
+      config = { rule: rule, tz: "America/Sao_Paulo" };
     } else {
       const [ano, mes, dia] = datas.split("-");
-      config = {year:ano,month: mes, date:dia, hour:hora, minute:minuto, tz:"America/Sao_Paulo"}
+      config = {
+        year: parseInt(ano),
+        month: parseInt(mes)-1,
+        date: parseInt(dia),
+        hour: parseInt(hora),
+        minute: parseInt(minuto),
+        second: 0,
+        tz: "America/Sao_Paulo",
+      };
     }
+    
     const resp = await scheduler.Criar(config, id, titulo);
     id++;
     return res.status(200).send({ mensagem: "Lembrete criado com sucesso!" });
@@ -101,7 +114,7 @@ app.post("/registrar-inscricao", async (req, res) => {
     const connection = await connect();
     db = connection.collection;
     client = connection.client;
-    
+
     const registro = await db.insertOne(subscription);
 
     return res.status(201).send({ mensagem: "Inscrição feita com sucesso!" });
