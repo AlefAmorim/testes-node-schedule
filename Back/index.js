@@ -44,17 +44,16 @@ app.post("/agendar", async (req, res) => {
     if (typeof datas == "object") {
       const dias = Array.from(datas).join(",");
       console.log(dias)
-      config = horario_fixo
+      rule = horario_fixo
         ? `0 ${minuto} ${hora} * * ${dias}`
         : `0 */${minuto} */${hora} * * ${dias}`;
+      config = {rule:rule, tz:"America/Sao_Paulo"};
     } else {
       const [ano, mes, dia] = datas.split("-");
-      config = new Date(ano, mes - 1, dia, hora-3, minuto);
+      config = {year:ano,month: mes, date:dia, hour:hora, minute:minuto, tz:"America/Sao_Paulo"}
     }
-    console.log(config)
     const resp = await scheduler.Criar(config, id, titulo);
     id++;
-    console.log(resp);
     return res.status(200).send({ mensagem: "Lembrete criado com sucesso!" });
   } catch (error) {
     console.error(error);
@@ -65,7 +64,6 @@ app.post("/agendar", async (req, res) => {
 app.get("/listar", async (req, res) => {
   try {
     const resp = await scheduler.listar(id);
-    console.log(resp);
     return res.status(200).send({ resp });
   } catch (error) {
     console.error(error);
@@ -84,7 +82,6 @@ app.delete("/remover-agenda/:id", async (req, res) => {
     }
 
     const resp = await scheduler.remover(parseInt(id));
-    console.log(resp);
     return res.status(200).send({ mensagem: "Lembrete removido com sucesso!" });
   } catch (error) {
     console.error(error);
@@ -101,11 +98,10 @@ app.post("/registrar-inscricao", async (req, res) => {
       error.missingSubs = true;
       throw error;
     }
-    console.log(subscription);
     const connection = await connect();
     db = connection.collection;
     client = connection.client;
-    // console.log(db.collectionName);
+    
     const registro = await db.insertOne(subscription);
 
     return res.status(201).send({ mensagem: "Inscrição feita com sucesso!" });

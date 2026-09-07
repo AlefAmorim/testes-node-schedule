@@ -12,8 +12,7 @@ async function lembrar(title){
     const db = connection.collection;
     client = connection.client;
     const registro = await db.findOne({_id:new ObjectId("6a9f10179478ecbcf0c24d9a")});
-    console.log(registro);
-
+    
     const sended = await sendPush(registro, JSON.stringify({title:title}));
     console.log(`Sended? ${sended}`);
     return true;
@@ -26,9 +25,7 @@ async function lembrar(title){
 
 export default class Lembretes{
   async Criar(config, id, title){
-    const job = nodeschedule.scheduleJob({rule:config, tz:"America/Sao_Paulo"},() => lembrar(title));
-    console.log(config);
-    console.log(job);
+    const job = nodeschedule.scheduleJob(config,() => lembrar(title));
 
     jobs.set(id, job);
     return true;
