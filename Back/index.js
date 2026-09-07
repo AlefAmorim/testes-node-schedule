@@ -54,15 +54,17 @@ app.post("/agendar", async (req, res) => {
       config = { rule: rule, tz: "America/Sao_Paulo" };
     } else {
       const [ano, mes, dia] = datas.split("-");
+      config = new Date(ano, mes-1, dia, hora, minuto);
       config = {
-        year: parseInt(ano),
-        month: parseInt(mes),
-        date: parseInt(dia),
-        hour: parseInt(hora),
-        minute: parseInt(minuto),
+        year: config.getFullYear(),
+        month: config.getMonth(),
+        date: config.getDate(),
+        hour: config.getHours(),
+        minute: config.getMinutes(),
         second: 0,
         tz: "America/Sao_Paulo",
       };
+      console.log(config)
     }
 
     const resp = await scheduler.Criar(config, id, titulo);
