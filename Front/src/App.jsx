@@ -23,13 +23,13 @@ function App() {
   const [registration, setRegistration] = useState(null);
   const [dataAtual, setDataAtual] = useState();
   const [hasNotify, setHasNotify] = useState(Notification.permission);
-  const [datas, setDatas] = useState({
+  const [dados, setDados] = useState({
     titulo: "",
     horario: "",
     categoria: "",
     recorrencia: "",
     horario_fixo: false,
-    dias: new Set(),
+    datas: new Set(),
   });
 
   const notifyHandler = async () => {
@@ -41,7 +41,7 @@ function App() {
         );
         return;
       }
-      setRegistration(await registerServiceWorker());
+
       const compatibilidade = await verificarCompatibilidade();
       if (compatibilidade.erro) {
         show("Erro-toast", compatibilidade.message);
@@ -49,7 +49,7 @@ function App() {
 
       console.log(Notification.permission);
       console.log(hasNotify);
-
+      console.log(registration)
       const granted = await askingPermission();
       const subscription = await subscribeUserToPush(registration);
       const response = await api.post("/registrar-inscricao", { subscription });
@@ -61,31 +61,51 @@ function App() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(datas);
+    // const [horas, minutos] = dados.horario.split(':');
+    // console.log(dados.horario);
+    // // const [ano, mes, dia] = dados.datas.split('-');
+    // const data = new Date(2026, 7, 7, horas, minutos);
+    // console.log(data)
+    // console.log(new Intl.DateTimeFormat('pt-BR').format(data));
+    let dadosLembrete = {...dados};
+    if(typeof dados.datas == 'object'){
+      dadosLembrete = {
+        ...dadosLembrete,
+        datas:Array.from(dados.datas)
+      };
+    }
+    try {
+      const response = await api.post('/agendar', dadosLembrete);
+      console.log(response)
+      show('Sucesso-Toast', 'Lembrete criado com sucesso!');
+    }catch(error) {
+      console.error(error);
+      show('Erro-Toast', 'Falha ao criar lembrete!Tente novamente mais tarde.');
+    }
   };
 
   const handleCheck = (e) => {
     const { id, checked } = e.target;
-    const { dias } = datas;
+    const { datas } = dados;
     console.log(id);
-    checked ? dias.add(id) : dias.delete(id);
-    setDatas({
-      ...datas,
-      dias,
+    checked ? datas.add(id) : datas.delete(id);
+    setDados({
+      ...dados,
+      datas,
     });
-    console.log(datas);
+    console.log(dados);
   };
 
   const changeHandler = (e) => {
     const campo = e.target.name;
-    const currentData = { ...datas };
+    const currentData = { ...dados };
     currentData[campo] =
       campo == "horario_fixo" ? e.target.checked : e.target.value;
 
-    setDatas(currentData);
-    console.log(datas);
+    setDados(currentData);
+    console.log(dados);
   };
 
   useEffect(() => {
@@ -94,6 +114,8 @@ function App() {
     // Caso não tenha, notificá-lo
     // Caso o contrário, pedir permissão para notificações
     (async () => {
+      setRegistration(await registerServiceWorker());
+
       const date = new Date();
       setDataAtual(date.toISOString());
       console.log(date.toISOString());
@@ -103,8 +125,8 @@ function App() {
   }, []);
 
   return (
-    <main className="min-h-dvh bg-zinc-900 p-2  text-zinc-800 grid grid-cols-[40%_60%]  items-center">
-      <section className="bg-zinc-800 text-white rounded-md min-h-full p-2">
+    <main className="min-h-dvh min-w-dwh bg-zinc-900 p-2  text-zinc-800  items-center">
+      <section className="bg-zinc-800 text-white rounded-md w-full min-h-full p-2">
         <header className="p-3 h-1/3 w-2/2 flex justify-evenly items-center">
           <div>
             <h1 className="text-2xl font-semibold">Crie os seus lembretes</h1>
@@ -179,17 +201,18 @@ function App() {
               changeHandler={(e) => changeHandler(e)}
             />
 
-            {datas.recorrencia == "" ? (
+            {dados.recorrencia == "" ? (
               <span className="text-center font-semibold text-zinc-400">
                 Selecione acima para ver as opções.
               </span>
-            ) : datas.recorrencia == 2 ? (
+            ) : dados.recorrencia == 2 ? (
               <Input
-                id="data"
-                name="data"
+                id="datas"
+                name="datas"
                 min={dataAtual}
                 labelText="Data"
                 type="date"
+                changeHandler={(e) => changeHandler(e)}
               />
             ) : (
               <div className="flex flex-wrap justify-center gap-2">
@@ -197,8 +220,8 @@ function App() {
                   <Checkbox
                     key={index}
                     id={dia.value}
-                    name="dias"
-                    diasSelecionados={datas}
+                    name="datas"
+                    diasSelecionados={dados}
                     textlabel={dia.label}
                     checked={dia.checked}
                     changeHandler={(e) => handleCheck(e)}
@@ -211,7 +234,7 @@ function App() {
           </form>
         </section>
       </section>
-      <section className="flex flex-col">
+      {/* <section className="flex flex-col">
         <header className="flex justify-center">
           <h2 className="text-white font-semibold text-2xl">Seus Lmebretes</h2>
         </header>
@@ -220,7 +243,7 @@ function App() {
             Nenhuma agenda!Crie uma no formulário a esquerda.
           </span>{" "}
         </section>
-      </section>
+      </section> */}
     </main>
   );
 }

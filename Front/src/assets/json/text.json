@@ -1,13 +1,13 @@
 {
   "DIAS_SEMANA":[
     {"label":"Todos os dias","value":"*", "checked":false},
-    {"label":"Domingo","value":1, "checked":false},
-    {"label":"Segunda-feira","value":2, "checked":false},
-    {"label":"Terça-feira","value":3, "checked":false},
-    {"label":"Quarta-feira","value":4, "checked":false},
-    {"label":"Quinta-feira","value":5, "checked":false},
-    {"label":"Sexta-feira","value":6, "checked":false},
-    {"label":"Sábado","value":7, "checked":false}
+    {"label":"Domingo","value":0, "checked":false},
+    {"label":"Segunda-feira","value":1, "checked":false},
+    {"label":"Terça-feira","value":2, "checked":false},
+    {"label":"Quarta-feira","value":3, "checked":false},
+    {"label":"Quinta-feira","value":4, "checked":false},
+    {"label":"Sexta-feira","value":5, "checked":false},
+    {"label":"Sábado","value":6, "checked":false}
   ],
   "CATEGORIAS":[
     {"label":"Selecione a categoria","value":""},
