@@ -1,15 +1,32 @@
 import nodeschedule from 'node-schedule';
-
+import connect from '../db/db.js';
+import { sendPush } from './webpush.js';
+import { ObjectId } from 'mongodb';
 const jobs = new Map();
 const error = new Error();
 
-function lembrar(){
-  console.log("Está lembrado!😀");
+async function lembrar(title){
+  let client;
+  try {
+    const connection = await connect();
+    const db = connection.collection;
+    client = connection.client;
+    const registro = await db.findOne({_id:new ObjectId("6a9eee4f5fda99b378c6dbee")});
+    console.log(registro);
+
+    const sended = await sendPush(registro, JSON.stringify({title:title}));
+    console.log(`Sended? ${sended}`);
+    return true;
+  }catch(error) {
+    throw error;
+  }finally {
+    if(client) client.close();
+  }
 }
 
 export default class Lembretes{
-  async Criar(config, id){
-    const job = nodeschedule.scheduleJob("2 * * * * *", lembrar);
+  async Criar(config, id, title){
+    const job = nodeschedule.scheduleJob(config,() => lembrar(title));
     console.log(config);
     console.log(job);
 

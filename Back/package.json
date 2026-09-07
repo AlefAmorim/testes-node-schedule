@@ -4,14 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev":"node ./index.js",
+    "dev": "node ./index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "mysql2": "^3.24.3",
-    "node-schedule": "^2.1.1"
+    "mongodb": "^7.6.0",
+    "mongoose": "^9.9.5",
+    "morgan": "^1.12.0",
+    "node-schedule": "^2.1.1",
+    "web-push": "^3.6.7"
   }
 }
