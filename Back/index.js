@@ -4,11 +4,12 @@ import cors from "cors";
 import http from "http";
 import Lembretes from "./src/utils/nodeSchedule.js";
 import connect from "./src/db/db.js";
+import dotenvConf from "./src/config/dotenv.js";
 
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: dotenvConf.VERSION === "PROD"?"https://testes-node-schedule-z3tgwa6ey-alefs-projects-b1963f27.vercel.app/":"http://localhost:5173",
   }),
 );
 app.use(express.json());

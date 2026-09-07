@@ -8,7 +8,8 @@ const dotenvConf =  {
   DB_NAME: process.env.DB_NAME,
   DB_COLLECTION: process.env.DB_COLLECTION,
   PUBLIC_VAPID_KEY:process.env.VAPID_PUBLIC_KEY,
-  PRIVATE_VAPID_KEY:process.env.VAPID_PRIVATE_KEY
+  PRIVATE_VAPID_KEY:process.env.VAPID_PRIVATE_KEY,
+  VERSION:process.env.VERSION
 }
 
 export default dotenvConf;
