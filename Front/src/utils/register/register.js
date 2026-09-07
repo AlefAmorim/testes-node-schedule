@@ -2,7 +2,7 @@ export async function registerServiceWorker(){
   try {
     // Fazendo o registro do serviceWorker
     // Por ser uma promise é permitido o uso de async/await
-    const registration = await navigator.serviceWorker.register('../../../service-worker.js');
+    const registration = await navigator.serviceWorker.register('../../../public/js/service-worker.js');
 
     // A chamada de register retorna um ServiceWorkerRegistration
     // que será utilizado para acesso da Push API
