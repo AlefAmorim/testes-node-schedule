@@ -11,7 +11,7 @@ async function lembrar(title){
     const connection = await connect();
     const db = connection.collection;
     client = connection.client;
-    const registro = await db.findOne({_id:new ObjectId("6a9eee4f5fda99b378c6dbee")});
+    const registro = await db.findOne({_id:new ObjectId("6a9f10179478ecbcf0c24d9a")});
     console.log(registro);
 
     const sended = await sendPush(registro, JSON.stringify({title:title}));
