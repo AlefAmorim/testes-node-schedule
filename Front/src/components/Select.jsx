@@ -12,6 +12,9 @@ const Select = ({
       {labelText && (
         <label htmlFor={id || name} className="text-lg">
           {labelText}
+          <span className={`${required ? "text-red-500" : "text-white"}`}>
+            {required ? "*" : "(opicional)"}
+          </span>
         </label>
       )}
       <div className="border border-zinc-500 rounded-md flex has-focus:outline-3 has-focus:outline-gray-700">

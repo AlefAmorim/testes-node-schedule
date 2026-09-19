@@ -27,9 +27,9 @@ function App() {
     titulo: "",
     horario: "",
     categoria: "",
-    recorrencia: "",
-    horario_fixo: false,
-    datas: new Set(),
+    recorrencia: new Set(),
+    horario_fixo: "false",
+    tipo_recorrencia: "",
   });
 
   const notifyHandler = async () => {
@@ -47,65 +47,67 @@ function App() {
         show("Erro-toast", compatibilidade.message);
       }
 
-      console.log(Notification.permission);
-      console.log(hasNotify);
-      console.log(registration)
       const granted = await askingPermission();
       const subscription = await subscribeUserToPush(registration);
-      const response = await api.post("/registrar-inscricao", { subscription });
-      console.log(response);
+      const response = await api.post("/dispositivos/cadastrar-dispositivo", {
+        subscription,
+      });
+      const { data } = response;
+      show("Sucesso-toast", data.mensagem);
     } catch (error) {
       console.error(error);
+      const { data } = error.response;
       setHasNotify(Notification.permission);
-      show("Error-toast", "Falha ao regstrar o usuário!");
+      show("Error-toast", data.erro || "Falha ao regstrar o usuário!");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // const [horas, minutos] = dados.horario.split(':');
-    // console.log(dados.horario);
-    // // const [ano, mes, dia] = dados.datas.split('-');
-    // const data = new Date(2026, 7, 7, horas, minutos);
-    // console.log(data)
-    // console.log(new Intl.DateTimeFormat('pt-BR').format(data));
-    let dadosLembrete = {...dados};
-    if(typeof dados.datas == 'object'){
+    let dadosLembrete = { ...dados };
+    if (typeof dados.recorrencia == "object") {
       dadosLembrete = {
         ...dadosLembrete,
-        datas:Array.from(dados.datas)
+        recorrencia: Array.from(dados.recorrencia),
       };
     }
     try {
-      const response = await api.post('/agendar', dadosLembrete);
-      console.log(response)
-      show('Sucesso-Toast', 'Lembrete criado com sucesso!');
-    }catch(error) {
+      const response = await api.post("/lembretes/criar-lembrete", {
+        dados: dadosLembrete,
+      });
+      const { data } = response;
+      show("Sucesso-toast", data.mensagem);
+    } catch (error) {
       console.error(error);
-      show('Erro-Toast', 'Falha ao criar lembrete!Tente novamente mais tarde.');
+      const { data } = error.response;
+      show(
+        "Erro-toast",
+        data.erro || "Falha ao criar lembrete!Tente novamente mais tarde.",
+      );
     }
   };
 
   const handleCheck = (e) => {
     const { id, checked } = e.target;
-    const { datas } = dados;
-    console.log(id);
-    checked ? datas.add(id) : datas.delete(id);
+    const { recorrencia } = dados;
+    checked ? recorrencia.add(id) : recorrencia.delete(id);
     setDados({
       ...dados,
-      datas,
+      recorrencia,
     });
-    console.log(dados);
   };
 
   const changeHandler = (e) => {
     const campo = e.target.name;
     const currentData = { ...dados };
     currentData[campo] =
-      campo == "horario_fixo" ? e.target.checked : e.target.value;
+      campo == "horario_fixo"
+        ? e.target.checked
+          ? "true"
+          : "false"
+        : e.target.value;
 
     setDados(currentData);
-    console.log(dados);
   };
 
   useEffect(() => {
@@ -118,15 +120,15 @@ function App() {
 
       const date = new Date();
       setDataAtual(date.toISOString());
-      console.log(date.toISOString());
+      // console.log(date.toISOString());
 
-      console.log(Date.now().toLocaleString());
+      // console.log(Date.now().toLocaleString());
     })();
   }, []);
 
   return (
-    <main className="min-h-dvh min-w-dwh bg-zinc-900 p-2  text-zinc-800  items-center">
-      <section className="bg-zinc-800 text-white rounded-md w-full min-h-full p-2">
+    <main className="min-h-dvh min-w-dvw bg-zinc-900 p-2  text-zinc-800 flex justify-center  items-center">
+      <section className="bg-zinc-800 text-white rounded-md w-150 min-h-full p-2">
         <header className="p-3 h-1/3 w-2/2 flex justify-evenly items-center">
           <div>
             <h1 className="text-2xl font-semibold">Crie os seus lembretes</h1>
@@ -135,17 +137,15 @@ function App() {
               Selecione o horário e os dias da semana ou data para o lembrete.
             </p>
           </div>
-          <button
-            className="bg-yellow-600 p-2 w-15 h-10 flex items-center justify-center  text-center text-white rounded-md cursor-pointer hover:scale-103 transition-all"
-            title={`${hasNotify ? "Desativar" : "Ativar"} notificações`}
-            onClick={notifyHandler}
-          >
-            {hasNotify === "granted" ? (
+          {hasNotify !== "granted" && (
+            <button
+              className="bg-yellow-600 p-2 w-15 h-10 flex items-center justify-center  text-center text-white rounded-md cursor-pointer hover:scale-103 transition-all"
+              title={`${hasNotify ? "Desativar" : "Ativar"} notificações`}
+              onClick={notifyHandler}
+            >
               <MdNotifications size={20} />
-            ) : (
-              <MdNotificationsOff size={20} />
-            )}
-          </button>
+            </button>
+          )}
         </header>
         <section className="flex p-5 justify-baseline overflow-y-scroll scroll-smooth">
           <form
@@ -194,23 +194,23 @@ function App() {
 
             <Select
               labelText="Recorrencia"
-              name="recorrencia"
-              id="recorrencia"
+              name="tipo_recorrencia"
+              id="tipo_recorrencia"
               options={RECORRENCIA}
               required={true}
               changeHandler={(e) => changeHandler(e)}
             />
 
-            {dados.recorrencia == "" ? (
+            {dados.tipo_recorrencia == "" ? (
               <span className="text-center font-semibold text-zinc-400">
                 Selecione acima para ver as opções.
               </span>
-            ) : dados.recorrencia == 2 ? (
+            ) : dados.tipo_recorrencia == 2 ? (
               <Input
-                id="datas"
-                name="datas"
+                id="recorrencia"
+                name="recorrencia"
                 min={dataAtual}
-                labelText="Data"
+                labelText="Recorrencia"
                 type="date"
                 changeHandler={(e) => changeHandler(e)}
               />
@@ -220,7 +220,7 @@ function App() {
                   <Checkbox
                     key={index}
                     id={dia.value}
-                    name="datas"
+                    name="recorrencia"
                     diasSelecionados={dados}
                     textlabel={dia.label}
                     checked={dia.checked}
