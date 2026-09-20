@@ -55,6 +55,7 @@ app.post("/agendar", async (req, res) => {
     } else {
       const [ano, mes, dia] = datas.split("-");
       config = new Date(ano, mes-1, dia, hora, minuto);
+      console.log(config)
       config = {
         year: config.getFullYear(),
         month: config.getMonth(),

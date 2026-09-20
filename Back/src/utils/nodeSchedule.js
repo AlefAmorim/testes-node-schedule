@@ -26,6 +26,7 @@ async function lembrar(title){
 export default class Lembretes{
   async Criar(config, id, title){
     const job = nodeschedule.scheduleJob(config,() => lembrar(title));
+    
     console.log(job?'created job':'not created');
     jobs.set(id, job);
     return true;
